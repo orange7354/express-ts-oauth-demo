@@ -24,6 +24,12 @@ type Client = {
   redirect_uris : string[];
 }
 
+type TokenResponse = {
+  access_token : string;
+  token_type : string;
+}
+
+
 const authServer :AuthServer = {
 	authorizationEndpoint: 'http://localhost:9001/authorize',
 	tokenEndpoint: 'http://localhost:9001/token'
@@ -36,15 +42,20 @@ const client  :Client = {
 };
 
 
+//csrf対策　
+var state  : string = '';
+var access_token :string = '';
 
 app.get('/', (req : Request, res :Response) => {
-  res.render('index');
+  res.render('index',{
+    access_token : access_token,
+  });
 });
 
 
-app.get('/authorize', function(req, res){
-	const access_token = null;
-  const state = generateRandomString(16);
+app.get('/authorize',(req :Request, res : Response) => {
+	access_token = '';
+  state = generateRandomString(16);
 	
 	var authorizeUrl = buildUrl(authServer.authorizationEndpoint, {
 		response_type: 'code',
@@ -57,6 +68,30 @@ app.get('/authorize', function(req, res){
 	res.redirect(authorizeUrl);
 });
 
+app.get('/callback', async (req : Request,res :Response) => {
+    if(req.query.error){
+      res.render('error',{
+        error:req.query.error
+      });
+    }
+
+  if(req.query.state != state){
+    res.render('error',{
+      error: 'State value did no match'
+    });
+  }
+
+  const code = req.query.code as string;
+  try {
+    const tokRes = await getTokens(code, client, authServer);
+    access_token = tokRes.access_token;
+    res.render('index',{
+      access_token:access_token
+    })
+  } catch ( error ){
+    res.render('render',{error : error});
+  }
+});
 
 
 
@@ -70,7 +105,6 @@ function generateRandomString(length: number): string {
 
   return result;
 }
-
 
 
 function buildUrl(base: string, options: Record<string, string>, hash?: string): string {
@@ -88,10 +122,40 @@ function buildUrl(base: string, options: Record<string, string>, hash?: string):
 }
 
 
+async function getTokens(code: string, client: Client, authServer: AuthServer): Promise<TokenResponse> {
+  const formData = new URLSearchParams();
+  formData.append('grant_type', 'authorization_code');
+  formData.append('code', code);
+  formData.append('redirect_uri', client.redirect_uris[0]);
+
+  const headers = new Headers();
+  headers.append('Content-Type', 'application/x-www-form-urlencoded');
+  headers.append('Authorization', 'Basic ' + encodeClientCredentials(client.client_id,client.client_secret));
+
+  const response = await fetch(authServer.tokenEndpoint, {
+    method: 'POST',
+    headers: headers,
+    body: formData.toString(),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const tokRes = await response.json() as TokenResponse;
+  return tokRes;
+}
+
+function encodeClientCredentials(clientId: string, clientSecret: string): string {
+  const escapedClientId = encodeURIComponent(clientId);
+  const escapedClientSecret = encodeURIComponent(clientSecret);
+  const credentials = `${escapedClientId}:${escapedClientSecret}`;
+  return btoa(credentials);
+}
 
 
 app.listen(clientPort, () => {
-  console.log(`OAuth clinet server is listening at http://${host}:${clientPort}`);
+  console.log(`OAuth clien  t server is listening at http://${host}:${clientPort}`);
 });
 
 
