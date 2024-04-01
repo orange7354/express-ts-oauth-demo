@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OAuth in Action: OAuth Authorization Server</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding-top: 80px;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #322;
+        }
+        .navbar-brand {
+            color: #fff;
+        }
+        .jumbotron {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">OAuth in Action: <span class="badge badge-danger">OAuth Authorization Server</span></a>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="jumbotron">
+            <h2>Approve this client?</h2>
+            <% if (client.client_name) { %>
+                <p><strong>Name:</strong> <code><%- client.client_name %></code></p>
+            <% } %>
+            <p><strong>ID:</strong> <code><%- client.client_id %></code></p>
+            <% if (client.client_uri) { %>
+                <p><strong>URI:</strong> <code><%- client.client_uri %></code></p>
+            <% } %>
+            <% if (client.logo_uri) { %>
+                <p><strong>Logo:</strong> <img src="<%- client.logo_uri %>" alt="Client Logo" class="img-fluid"></p>
+            <% } %>
+            <form class="form" action="/approve" method="POST">
+                <input type="hidden" name="reqid" value="<%- reqid %>">
+                <button type="submit" class="btn btn-success" name="approve">Approve</button>
+                <button type="submit" class="btn btn-danger" name="deny">Deny</button>
+            </form>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
