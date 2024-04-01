@@ -2,6 +2,8 @@ import express from 'express';
 import type { Request, Response } from 'express';
 import { get } from 'http';
 import path from 'path';
+import { buildUrl, generateRandomString } from './utils/helper';
+
 
 const app = express();
 const host = 'localhost';
@@ -9,7 +11,7 @@ const port = 9001;
 
 
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '../views/'));
+app.set('views', path.join(__dirname, '../views/authorizationServer'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -27,7 +29,11 @@ const clients : Client[] = [
     },
 ];
 
-const codes: { [key: string]: string } = {};
+interface CodeEntry {
+    request: any;
+}
+
+const codes: { [key: string]: CodeEntry } = {};
 const requests: { [key: string]: any } = {};
 
 const getClient = (client_id :string) : Client | undefined => {
@@ -55,17 +61,40 @@ app.get('/authorize',(req :Request, res : Response) => {
 });
 
 
+app.post('/approve', (req : Request, res : Response) => {
+    const rapid = req.body.rapid as string;
+    const query = requests[rapid];
+    delete requests[rapid];
 
-function generateRandomString(length: number): string {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    if(!query) {
+        res.render('error', {error: 'No matching authorization request'});
+        return;
     }
 
-    return result;
-}
+    if(req.body.approve) {
+        if(query.response_type === 'code') {
+            const code = generateRandomString(8);
+            codes[code] = { request : query };
+            const redirect = buildUrl(query.redirect_uri, { code, state: query.state });
+            res.redirect(redirect);
+            return;
+        } else {
+			const urlParsed = buildUrl(query.redirect_uri, {
+				error: 'unsupported_response_type'
+			});
+			res.redirect(urlParsed);
+			return;
+        }
+
+    } else {
+        const urlParsed = buildUrl(query.redirect_uri, {
+            error: 'access_denied'
+        });
+        res.redirect(urlParsed);
+    }
+
+
+});
 
 
 app.listen(port, () => {
