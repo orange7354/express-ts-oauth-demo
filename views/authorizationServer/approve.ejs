@@ -48,8 +48,8 @@
             <% } %>
             <form class="form" action="/approve" method="POST">
                 <input type="hidden" name="reqid" value="<%- reqid %>">
-                <button type="submit" class="btn btn-success" name="approve">Approve</button>
-                <button type="submit" class="btn btn-danger" name="deny">Deny</button>
+                <button type="submit" class="btn btn-success" name="approve" value="1">Approve</button>
+                <button type="submit" class="btn btn-danger" name="deny" value="0">Deny</button>
             </form>
         </div>
     </div>
