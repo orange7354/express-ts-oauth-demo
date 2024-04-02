@@ -5,12 +5,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start-client": "npx tsc && node dist/client.js"
+    "build" : "npx tsc",
+    "start-client": "node dist/client.js",
+    "start-auth": "node dist/authorizationServer.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/cors": "^2.8.17",
+    "cors": "^2.8.5",
     "ejs": "^3.1.9",
     "express": "^4.19.2"
   },
