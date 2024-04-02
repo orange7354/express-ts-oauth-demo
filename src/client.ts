@@ -1,6 +1,7 @@
 import express from 'express';
 import type { Request, Response } from 'express';
 import path from 'path';
+import { buildUrl, generateRandomString } from './utils/helper';
 
 const app = express();
 const host = 'localhost';
@@ -78,10 +79,10 @@ app.get('/callback', async (req : Request,res :Response) => {
         const tokRes = await getTokens(code, client, authServer);
         access_token = tokRes.access_token;
         res.render('index',{
-            access_token:access_token
+            access_token: access_token
         })
     } catch ( error ){
-        res.render('render',{error : error});
+        res.render('error',{error : error});
     }
 });
 
@@ -104,33 +105,6 @@ app.get('/fetch_resource', async (req :Request, res :Response) => {
     }
 });
 
-
-
-function generateRandomString(length: number): string {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-
-    return result;
-}
-
-
-function buildUrl(base: string, options: Record<string, string>, hash?: string): string {
-    const url = new URL(base);
-    
-    for (const [key, value] of Object.entries(options)) {
-        url.searchParams.append(key, value);
-    }
-    
-    if (hash) {
-        url.hash = hash;
-    }
-    
-    return url.toString();
-}
 
 
 async function getTokens(code: string, client: Client, authServer: AuthServer): Promise<TokenResponse> {
