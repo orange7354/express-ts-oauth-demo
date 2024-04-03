@@ -182,7 +182,7 @@ app.post('/token', (req : Request, res : Response) => {
 });
 
 const decodeClientCredentials = function(auth : string) : { id: string, secret: string } {
-    const clientCredentials = atob(auth.slice('basic '.length)).split(':');
+	const clientCredentials = Buffer.from(auth.slice('basic '.length), 'base64').toString().split(':');
     const clientId = decodeURIComponent(clientCredentials[0]);
     const clientSecret = decodeURIComponent(clientCredentials[1]);
     return { id: clientId, secret: clientSecret };

@@ -135,7 +135,7 @@ function encodeClientCredentials(clientId: string, clientSecret: string): string
     const escapedClientId = encodeURIComponent(clientId);
     const escapedClientSecret = encodeURIComponent(clientSecret);
     const credentials = `${escapedClientId}:${escapedClientSecret}`;
-    return btoa(credentials);
+    return Buffer.from(credentials).toString('base64');
 }
 
 
