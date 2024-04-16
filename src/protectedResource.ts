@@ -60,10 +60,10 @@ const getAccessToken = (req : ResourceRequest , res : Response , next : NextFunc
 
 app.get('/resource',getAccessToken,(req : ResourceRequest, res : Response) => {
     if (req.access_token) {
-		res.json(resource);
-	} else {
-		res.status(401).end();
-	}
+        res.json(resource);
+    } else {
+        res.status(401).end();
+    }
 });
 
 
