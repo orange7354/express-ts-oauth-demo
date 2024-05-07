@@ -63,6 +63,7 @@ app.get('/authorize',(req :Request, res : Response) => {
 
 
 app.post('/approve', (req : Request, res : Response) => {
+    //csrf対策 authorizeで生成したランダムな文字列
     const reqid = req.body.reqid as string;
 
     const query = requests[reqid];
@@ -74,10 +75,12 @@ app.post('/approve', (req : Request, res : Response) => {
     }
 
     if(req.body.approve) {
+        //ユーザーが承認した場合
         if(query.response_type === 'code') {
+            // 許可コードによる付与方式の対応
             const code = generateRandomString(8);
             codes[code] = { request : query };
-
+            
             const redirect = buildUrl(query.redirect_uri, {
                 code : code,
                 state: query.state 
