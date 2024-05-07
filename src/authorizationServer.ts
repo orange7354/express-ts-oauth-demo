@@ -25,7 +25,8 @@ const clients : Client[] = [
     {
         client_id: "oauth-client-1",
         client_secret: "oauth-client-secret-1",
-        redirect_uris : ["http://localhost:9000/callback"]
+        redirect_uris : ["http://localhost:9000/callback"],
+        scope : "foo bar"
     },  
 ];
 
@@ -54,9 +55,23 @@ app.get('/authorize',(req :Request, res : Response) => {
         res.render('error', {error: 'Invalid redirect URI'});
         return;
     } else {
+
+        const requestScope: string[] | undefined = typeof req.query.scope === 'string' ? req.query.scope.split(' ') : undefined;
+        const clientScope: string[] | undefined = typeof client.scope === 'string' ? client.scope.split(' ') : undefined;
+
+        if (requestScope && clientScope && requestScope.some(scope => !clientScope.includes(scope))) {
+            //リクエストされたスコープと、登録されているスコープが違う場合
+            const urlParsed = buildUrl(req.query.redirect_uri as string,{
+                error : 'invalid_scope'
+            });
+
+            res.redirect(urlParsed);
+            return;
+        }
+
         const reqid = generateRandomString(8);
         requests[reqid] = req.query;
-        res.render('approve', {client: client, reqid: reqid });
+        res.render('approve', {client: client, reqid: reqid , scope: requestScope});
         return;
     }
 });
@@ -80,7 +95,7 @@ app.post('/approve', (req : Request, res : Response) => {
             // 許可コードによる付与方式の対応
             const code = generateRandomString(8);
             codes[code] = { request : query };
-            
+
             const redirect = buildUrl(query.redirect_uri, {
                 code : code,
                 state: query.state 
