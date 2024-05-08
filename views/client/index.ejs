@@ -1,57 +1,68 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oauth Client </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Oauth Client Server</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            padding-top: 80px;
+            background-color: #f4f7fa;
+            font-family: 'Roboto', sans-serif;
         }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        .navbar {
+            background-color: #4A76A8;
         }
-
+        .navbar-brand {
+            color: #ffffff;
+        }
         .card {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
         }
-
         .btn {
-            display: inline-block;
-            padding: 12px 24px;
+            width: 250px;
+            padding: 10px;
             background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
             margin: 10px 0;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s;
         }
-
         .btn:hover {
             background-color: #0056b3;
+        }
+        .label {
+            color: #007bff;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-sm navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">OAuth in Action: <span class="badge badge-danger">OAuth Client Server</span></a>
+        </div>
+    </nav>
     <div class="container">
         <div class="card">
-            <p>AccessToken ::<%= access_token %></p>
-            <a href="/authorize" class="btn">Get OAuth Token</a>
-            <a href="/fetch_resource" class="btn">Get Protected Resource</a>
+            <p>Access token value: <span class="label label-danger"><%- access_token ? access_token : 'NONE' %></span></p>
+            <p>Scope value: <span class="label label-danger"><%- scope ? scope : 'NONE' %></span></p>
+            <p>Refresh token value: <span class="label label-danger"><%- refresh_token ? refresh_token : 'NONE' %></span></p>
+            <a class="btn btn-primary" href="/authorize">Get OAuth Token</a>
+            <a class="btn btn-primary" href="/refresh">Refresh Access Token</a>
+            <a class="btn btn-primary" href="/fetch_resource">Get Protected Resource</a>
         </div>
     </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
